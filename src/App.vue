@@ -113,6 +113,7 @@
 
 <script>
 //import Vue from "vue";
+/* eslint-disable */
 import axios from "axios";
 import LineChart from "./components/LineChart";
 import DoughnutChart from "./components/DoughnutChart.vue";
@@ -179,7 +180,7 @@ export default {
       ];
       this.reactiveChartData = solarPerformance;
      
-      console.log(this.reactiveChartData);
+      //console.log(this.reactiveChartData);
     }
 
   },

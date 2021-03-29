@@ -1,10 +1,11 @@
 <script>
-import { Line,mixins } from "vue-chartjs";//
-const { reactiveProp } = mixins;
+/* eslint-disable */
+import { Line, mixins } from "vue-chartjs";//
+//const { reactiveProp } = mixins;
 
 export default {
     extends: Line,
-    mixins: [reactiveProp],
+    mixins: [mixins.reactiveProp],
     props: {
         label: {
             type: String,
@@ -16,23 +17,29 @@ export default {
             type: Object,
         }
     },
-    mounted () {
-        let hours=[];
-        let performance=[];
-        console.log(this.chartData);
-        if(this.chartData.length > 0){
-            
-            hours = this.chartData.map(d => d.hour);
-            performance = this.chartData.map(d => d.yield);
+    data() {
+        return {
+            chart:null,
         }
-        
-
+    },
+    watch: {
+        datasets(newDatasets) {
+            console.log(newDatasets);
+            this.chart.datasets = newDatasets;
+            this.chart.update
+        }
+    },
+    mounted () {
+        let hours = this.chartData.map(d => d.hour);
+        let performance = this.chartData.map(d => d.yield);
         this.renderChart({
             labels: hours,
             datasets: [{
+                label: this.label,
                 data: performance,
             }],
         },this.options);
-    }
+    },
+    
 }
 </script>
