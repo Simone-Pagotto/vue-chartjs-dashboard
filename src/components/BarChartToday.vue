@@ -14,8 +14,23 @@ export default {
         }
     },
     mounted () {
-        const range = this.chartData.map(d => d.range);
-        const totalConnections = this.chartData.map(d => d.connections);
+        let range= [];
+        let totalConnections=[40,50,50,50,20];
+        
+        this.chartData.map((d) => {
+            if(!range.includes(d.age)){
+                range.push(d.age);
+            }
+        });
+
+        this.chartData.map((d) => { 
+            for(let i=0; i<range.length; i++){ 
+                if(range[i] === d.age){
+                    totalConnections[i] += 1;
+                } 
+            }
+        });
+
         this.renderChart({
             labels: range,
             datasets: [{

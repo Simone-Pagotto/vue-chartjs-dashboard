@@ -85,10 +85,12 @@
         </div>
       </div>
       <div class="main">
+        <!-- first line -->
         <div class="chart-box" v-if="monthlyConnections.length > 0">
           <div>Montly Connections</div>
           <line-chart :chartData="monthlyConnections" :options="chartOptions" label="MonthlyConnections"></line-chart>
         </div>
+        <!-- second line -->
         <div class="box">
           <div class="half chart-box" v-if="usersAge.length > 0">
             <div>Users Age Range</div>
@@ -99,12 +101,25 @@
             <doughnut-chart :chartData="usersOS" :options="chartOptions" label="Users' Devices"></doughnut-chart>
           </div>
         </div>
+        <!-- third line -->
         <div class="button-play" @click="dataStart">
           <i class="fa fa-play" aria-hidden="true"></i>
         </div>
         <div class="chart-box" v-if="monthlyConnections.length > 0">
           <div>Solar Power</div>
           <solar-chart :chartData="solarPerformance" :options="chartOptions" label="Daily"></solar-chart>
+        </div>
+        <!-- fourth line -->
+        <div class="title">Today</div>
+        <div class="box">
+          <div class="half chart-box" v-if="today.length > 0">
+            <div>Users Age Range</div>
+            <bar-chart-today :chartData="today" :options="chartOptions"></bar-chart-today>
+          </div>
+          <div class="half chart-box" v-if="today.length > 0">
+            <div>Operating System</div>
+            <doughnut-chart-today :chartData="today" :options="chartOptions" label="Users' Devices"></doughnut-chart-today>
+          </div>
         </div>
       </div>
     </div>
@@ -119,6 +134,8 @@ import LineChart from "./components/LineChart";
 import DoughnutChart from "./components/DoughnutChart.vue";
 import BarChart from "./components/BarChart.vue";
 import SolarChart from "./components/SolarChart";
+import BarChartToday from "./components/BarChartToday.vue";
+import DoughnutChartToday from "./components/DoughnutChartToday.vue";
 
 export default {
   components: {
@@ -126,6 +143,8 @@ export default {
     DoughnutChart,
     BarChart,
     SolarChart,
+    BarChartToday,
+    DoughnutChartToday
   },
   data() {
     return {
@@ -133,6 +152,7 @@ export default {
       monthlyConnections: [],
       usersOS: [],
       usersAge: [],
+      today: [],
       solarPerformance:[
         {hour: 1,yield: 0,},
         {hour: 2,yield: 0,},
@@ -198,12 +218,19 @@ export default {
     };
   },
   async created () {
-    const {data} = await axios.get("https://jsonbox.io/box_b8a460940b9a7e686a37/605daf557bdf65001594e5ed");
-    this.monthlyConnections = data.MonthlyConnections;
-    this.usersOS = data.Devices;
-    this.usersAge = data.UsersAgeRange;
-    /* console.log('axios:',data.MonthlyConnections);
-    console.log('vue:',this.monthlyConnections); */
+    axios.get("https://jsonbox.io/box_b8a460940b9a7e686a37/605daf557bdf65001594e5ed")
+    .then((res) => {
+      this.monthlyConnections = res.data.MonthlyConnections;
+      this.usersOS = res.data.Devices;
+      this.usersAge = res.data.UsersAgeRange;
+
+      axios.get('https://jsonbox.io/box_69a15712e9a8461a26dc')
+        .then((res) => {
+            this.today = res.data;
+        });
+    }).catch((err) => {
+      console.error(err);
+    });
   },
   computed: {
     getRandomIncl(min,max) {
@@ -242,7 +269,7 @@ export default {
           } else {
             clearInterval(time);
           }
-        },10); 
+        },1000); 
     }
 
   },
@@ -353,7 +380,9 @@ export default {
       padding: 2rem;
       overflow: auto;
       /* display: flex;
-      flex-direction: column; */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center; */
       .chart-box {
         background-color: $white;
         border-radius: 1rem;
@@ -387,7 +416,21 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        align-self: center;
+        margin: 2rem auto;
+      }
+      .title {
+        display: flex;
+        align-items:center;
+        justify-content: center;
+        width: 10rem;
+
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 2rem auto;
+        background-color: $white;
+        color: $primary-color;
+        font-size: 2rem;
+        font-weight: 500;
       }
     }
   }
