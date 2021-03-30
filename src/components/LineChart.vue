@@ -21,6 +21,7 @@ export default {
             labels: months,
             datasets: [{
                 label: this.label,
+                backgroundColor: ['#58508d'],
                 data: totalConnections,
             }],
         },this.options);

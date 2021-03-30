@@ -104,7 +104,7 @@
         </div>
         <div class="chart-box" v-if="monthlyConnections.length > 0">
           <div>Solar Power</div>
-          <solar-chart :chartData="reactiveChartData" :options="chartOptions" label="Daily"></solar-chart>
+          <solar-chart :chartData="solarPerformance" :options="chartOptions" label="Daily"></solar-chart>
         </div>
       </div>
     </div>
@@ -133,27 +133,31 @@ export default {
       monthlyConnections: [],
       usersOS: [],
       usersAge: [],
-      reactiveChartData: null,
-      chartOptions:{
-        responsive: true,
-        maintainAspectRatio: false,
-      }
-    };
-  },
-  async created () {
-    const {data} = await axios.get("https://jsonbox.io/box_b8a460940b9a7e686a37/605daf557bdf65001594e5ed");
-    this.monthlyConnections = data.MonthlyConnections;
-    this.usersOS = data.Devices;
-    this.usersAge = data.UsersAgeRange;
-    /* console.log('axios:',data.MonthlyConnections);
-    console.log('vue:',this.monthlyConnections); */
-  },
-  methods: {
-    toggleMenu: function () {
-      this.isOpen = !this.isOpen;
-    },
-    dataStart: function () {
-      let solarPerformance= [
+      solarPerformance:[
+        {hour: 1,yield: 0,},
+        {hour: 2,yield: 0,},
+        {hour: 3,yield: 0,},
+        {hour: 4,yield: 0,},
+        {hour: 5,yield: 0,},
+        {hour: 6,yield: 0,},
+        {hour: 7,yield: 0,},
+        {hour: 8,yield: 0,},
+        {hour: 9,yield: 0,},
+        {hour: 10,yield: 0,},
+        {hour: 11,yield: 0,},
+        {hour: 12,yield: 0,},
+        {hour: 13,yield: 0,},
+        {hour: 14,yield: 0,},
+        {hour: 15,yield: 0,},
+        {hour: 16,yield: 0,},
+        {hour: 17,yield: 0,},
+        {hour: 18,yield: 0,},
+        {hour: 19,yield: 0,},
+        {hour: 20,yield: 0,},
+        {hour: 21,yield: 0,},
+        {hour: 22,yield: 0,},
+        {hour: 23,yield: 0,}],
+      solarPerformanceDb: [
         {hour: 1,yield: 5,},
         {hour: 2,yield: 0,},
         {hour: 3,yield: 2,},
@@ -177,10 +181,68 @@ export default {
         {hour: 21,yield: 4,},
         {hour: 22,yield: 1,},
         {hour: 23,yield: 0,},
-      ];
-      this.reactiveChartData = solarPerformance;
-     
-      //console.log(this.reactiveChartData);
+      ],
+      reactiveChartData: null,
+      chartOptions:{
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              suggestedMax: 100,
+            }
+          }]
+        }
+      },
+    };
+  },
+  async created () {
+    const {data} = await axios.get("https://jsonbox.io/box_b8a460940b9a7e686a37/605daf557bdf65001594e5ed");
+    this.monthlyConnections = data.MonthlyConnections;
+    this.usersOS = data.Devices;
+    this.usersAge = data.UsersAgeRange;
+    /* console.log('axios:',data.MonthlyConnections);
+    console.log('vue:',this.monthlyConnections); */
+  },
+  computed: {
+    getRandomIncl(min,max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+  },
+  methods: {
+    toggleMenu: function () {
+      this.isOpen = !this.isOpen;
+    },
+    dataStart: function () {
+        let time = setInterval(()=>{
+          if(this.solarPerformanceDb.length != 0){
+            let index = 23 - this.solarPerformanceDb.length;
+            let sliced = this.solarPerformanceDb.shift();
+            let variationPerc = Math.cos( Math.PI * Math.round( Math.random()))*(Math.random() * 5);
+            let transitionValue = sliced.yield + variationPerc;
+
+            //casi
+            if(transitionValue < 0) {
+              sliced.yield = 0;
+            }
+
+            if(transitionValue > 100){
+              sliced.yield = 100;
+            }
+
+            if(transitionValue <= 100 && transitionValue >= 0)
+            {
+              sliced.yield = transitionValue;
+            }
+            
+            this.solarPerformance.splice(index,1,sliced);
+          } else {
+            clearInterval(time);
+          }
+        },10); 
     }
 
   },
